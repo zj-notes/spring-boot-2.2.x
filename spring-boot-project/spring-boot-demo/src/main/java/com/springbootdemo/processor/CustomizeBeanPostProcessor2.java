@@ -7,7 +7,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class CustomizeBeanPostProcessor2 implements BeanPostProcessor {
 
 	@Override

@@ -55,13 +55,10 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 		this.application = application;
 		this.args = args;
 		this.initialMulticaster = new SimpleApplicationEventMulticaster();
-		/**
-		 *
-		 *
-		 * setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
- 		 */
+
 		// 实例化，注册ApplicationListener监听器
-		// 传入的application在创建时已经加载ApplicationListener接口的实现类
+		// 传入的 application 在创建时已经加载 ApplicationListener 接口的实现类
+		//  setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
 		for (ApplicationListener<?> listener : application.getListeners()) {
 			this.initialMulticaster.addApplicationListener(listener);
 		}

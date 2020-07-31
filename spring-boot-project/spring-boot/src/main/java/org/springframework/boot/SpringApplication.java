@@ -319,8 +319,8 @@ public class SpringApplication {
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
 		configureHeadlessProperty();
 
-		// 从spring.factories配置文件中获取 SpringApplicationRunListener 事件发布器
-		// 同时会注册ApplicationListener监听器实现类
+		// 从spring.factories 配置文件中获取 SpringApplicationRunListener 事件发布器
+		// 同时会注册 ApplicationListener 监听器实现类
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting();
 		try {
@@ -464,8 +464,8 @@ public class SpringApplication {
 
 	private SpringApplicationRunListeners getRunListeners(String[] args) {
 		Class<?>[] types = new Class<?>[] { SpringApplication.class, String[].class };
-		// 读取spring.factories文件中SpringApplicationRunListener接口实现类EventPublishingRunListener，
-		// 实例化时会注册ApplicationListener监听器接口的实现类
+		// 读取spring.factories文件中 SpringApplicationRunListener 接口实现类 EventPublishingRunListener，
+		// 实例化时会注册 ApplicationListener 监听器接口的实现类
 		return new SpringApplicationRunListeners(logger, getSpringFactoriesInstances(SpringApplicationRunListener.class, types, this, args));
 	}
 

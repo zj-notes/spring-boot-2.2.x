@@ -11,9 +11,8 @@ import org.springframework.stereotype.Component;
 public class CustomizeBeanPostProcessor implements BeanPostProcessor {
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		System.out.println("*************** CustomizeBeanPostProcessor before ********************");
-
 		if("calculateService".equals(beanName)) {
+			System.out.println("*************** CustomizeBeanPostProcessor before ********************");
 			Utils.printTrack("do postProcess before initialization");
 			CalculateService calculateService = (CalculateService)bean;
 			calculateService.setServiceDesc("desc from " + this.getClass().getSimpleName());

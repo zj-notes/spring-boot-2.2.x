@@ -138,6 +138,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	@Override
 	public final void refresh() throws BeansException, IllegalStateException {
 		try {
+			// 调用 AbstractApplicationContext.refresh() 方法
 			super.refresh();
 		}
 		catch (RuntimeException ex) {

@@ -144,12 +144,15 @@ class BeanDefinitionLoader {
 			// 初始化Content load4
 			return load((Class<?>) source);
 		}
+		// 如果是resource类型，启用xml解析
 		if (source instanceof Resource) {
 			return load((Resource) source);
 		}
+		// 如果是package类型，启用扫描包，例如：@ComponentScan
 		if (source instanceof Package) {
 			return load((Package) source);
 		}
+		// 如果是字符串类型，直接加载
 		if (source instanceof CharSequence) {
 			return load((CharSequence) source);
 		}
@@ -159,12 +162,11 @@ class BeanDefinitionLoader {
 	// 初始化Content load4
 	private int load(Class<?> source) {
 		if (isGroovyPresent() && GroovyBeanDefinitionSource.class.isAssignableFrom(source)) {
-			// Any GroovyLoaders added in beans{} DSL can contribute beans here
 			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source, GroovyBeanDefinitionSource.class);
 			load(loader);
 		}
-		// 找到是否匹配@Component注解
-		// 使用@SpringBootApplication这个注解，并没有直接注解@Component。而@SpringBootApplication是一个组合注解，其中就组合了@Component
+		// 找到是否匹配 @Component 注解
+		// 使用 @SpringBootApplication 这个注解，并没有直接注解 @Component。而 @SpringBootApplication 是一个组合注解，其中就组合了@Component
 		// 而AnnotationUtils.findAnnotation方法将会递归遍历注解，最终找到@Component。
 		if (isComponent(source)) {
 			// 读取主类的过程

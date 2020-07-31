@@ -43,6 +43,9 @@ class SpringApplicationRunListeners {
 	}
 
 	void starting() {
+		// SpringApplicationRunListener 只有一个实现类 EventPublishingRunListener
+		// EventPublishingRunListener 这个是 springBoot 框架中最早执行的监听器，在该监听器执行 started() 方法时，会继续发布事件，也就是事件传递。
+		// 这种实现主要还是基于spring的事件机制，EventPublishingRunListener 的内部对象 SimpleApplicationEventMulticaster
 		for (SpringApplicationRunListener listener : this.listeners) {
 			listener.starting();
 		}

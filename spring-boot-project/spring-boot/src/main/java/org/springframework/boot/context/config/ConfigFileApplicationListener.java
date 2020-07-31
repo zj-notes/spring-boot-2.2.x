@@ -103,6 +103,7 @@ import org.springframework.util.StringUtils;
  * @author Madhura Bhave
  * @since 1.0.0
  */
+// 该监听器非常核心，主要用来处理项目配置。项目中的 properties 和yml文件都是其内部类所加载
 public class ConfigFileApplicationListener implements EnvironmentPostProcessor, SmartApplicationListener, Ordered {
 
 	private static final String DEFAULT_PROPERTIES = "defaultProperties";
@@ -182,9 +183,16 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	}
 
 	private void onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent event) {
+		// 首先会去读spring.factories 文件, 读取 EnvironmentPostProcessor 接口实现类
+		// 获取的处理类有以下四种：
+		//  EnvironmentPostProcessor:一个@FunctionalInterface函数式接口
+		//  CloudFoundryVcapEnvironmentPostProcessor 为springCloud提供的扩展类
+		//  SpringApplicationJsonEnvironmentPostProcessor 支持json环境变量
+		//  SystemEnvironmentPropertySourceEnvironmentPostProcessor springBoo2提供的一个包装类，主要将`StandardServletEnvironment`包装成`SystemEnvironmentPropertySourceEnvironmentPostProcessor`对象
 		List<EnvironmentPostProcessor> postProcessors = loadPostProcessors();
-		postProcessors.add(this);
+		postProcessors.add(this); // 自身也实现了 EnvironmentPostProcessor 接口
 		AnnotationAwareOrderComparator.sort(postProcessors);
+		// 调用 EnvironmentPostProcessor 接口实现类 postProcessEnvironment 方法
 		for (EnvironmentPostProcessor postProcessor : postProcessors) {
 			postProcessor.postProcessEnvironment(event.getEnvironment(), event.getSpringApplication());
 		}
@@ -194,6 +202,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 		return SpringFactoriesLoader.loadFactories(EnvironmentPostProcessor.class, getClass().getClassLoader());
 	}
 
+	// 自身也实现了 EnvironmentPostProcessor 接口，执行 postProcessEnvironment 方法
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 		addPropertySources(environment, application.getResourceLoader());
@@ -210,8 +219,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	 * @param resourceLoader the resource loader
 	 * @see #addPostProcessors(ConfigurableApplicationContext)
 	 */
-	protected void addPropertySources(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
-		RandomValuePropertySource.addToEnvironment(environment);
+	protected void addPropertySources(ConfigurableEnvironment environment, ResourceLoader resourceLoader) { RandomValuePropertySource.addToEnvironment(environment);
 		new Loader(environment, resourceLoader).load();
 	}
 
@@ -316,8 +324,8 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			this.environment = environment;
 			this.placeholdersResolver = new PropertySourcesPlaceholdersResolver(this.environment);
 			this.resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
-			// 文件application配置文件的资源加载器，包括propertis/xml/yml/yaml扩展名
-			// 两个loade,PropertiesPropertySourceLoader和YamlPropertySourceLoader
+			// 文件 application 配置文件的资源加载器，包括 propertis/xml/yml/yaml 扩展名
+			// 两个 loade,PropertiesPropertySourceLoader 和 YamlPropertySourceLoader
 			this.propertySourceLoaders = SpringFactoriesLoader.loadFactories(PropertySourceLoader.class, getClass().getClassLoader());
 		}
 
@@ -327,7 +335,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			FilteredPropertySource.apply(this.environment, DEFAULT_PROPERTIES, LOAD_FILTERED_PROPERTY,
 					(defaultProperties) -> {
 						this.profiles = new LinkedList<>();
-						this.processedProfiles = new LinkedList<>();		// 消费一个profile
+						this.processedProfiles = new LinkedList<>();
 						this.activatedProfiles = false;
 						this.loaded = new LinkedHashMap<>();
 						// 初始化profiles
@@ -337,7 +345,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 							// 消费一个profile
 							Profile profile = this.profiles.poll();
 
-							// 如果profile != null 并且不是default，那就就是被激活的profile，如：test并将之添加到Environment
+							// 如果 profile != null 并且不是default，那就就是被激活的profile，如：test并将之添加到Environment
 							if (isDefaultProfile(profile)) {
 								addProfileToEnvironment(profile.getName());
 							}

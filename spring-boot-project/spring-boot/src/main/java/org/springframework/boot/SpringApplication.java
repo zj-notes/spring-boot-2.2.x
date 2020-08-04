@@ -385,14 +385,14 @@ public class SpringApplication {
 	 * properties(MutablePropertySources): properties代表着key-value的键值对象集合。Environment内部设计了key-value结构的对象来存储相应的键值
 	 */
 	private ConfigurableEnvironment prepareEnvironment(SpringApplicationRunListeners listeners, ApplicationArguments applicationArguments) {
-		// 创建一个Environment对象（StandardServletEnvironment）
+		// 1、初始化environment，创建一个Environment对象（StandardServletEnvironment）
 		ConfigurableEnvironment environment = getOrCreateEnvironment();
 
-		// 配置Environment对象
+		// 2、加载默认配置
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
 		ConfigurationPropertySources.attach(environment);
 
-		// 触发监听器（主要是触发ConfigFileApplicationListener，这个监听器将会加载如application.properties/yml这样的配置文件）
+		// 3、通知环境监听器，加载项目中的配置文件（主要是触发 ConfigFileApplicationListener，这个监听器将会加载如application.properties/yml这样的配置文件）
 		listeners.environmentPrepared(environment);
 		bindToSpringApplication(environment);
 		if (!this.isCustomEnvironment) {
@@ -420,12 +420,12 @@ public class SpringApplication {
 		postProcessApplicationContext(context);
 
 		// 执行容器中的 ApplicationContextInitializer（包括 spring.factories 和自定义的实例）
-		// 此处会将三个默认的内部类加入到 spring 容器DefaultListableBeanFactory中
+		// 此处会将三个默认的内部类加入到 spring 容器 DefaultListableBeanFactory 中
 		//  ConfigurationWarningsApplicationContextInitializer$ConfigurationWarningsPostProcessor
 		//  SharedMetadataReaderFactoryContextInitializer$CachingMetadataReaderFactoryPostProcessor
 		//  ConfigFileApplicationListener$PropertySourceOrderingPostProcessor
 		// 这几个内部类实现了 BeanDefinitionRegistryPostProcessor 和 BeanFactoryPostProcessor 接口，
-		// 这三个内部类会在 refresh()中 invokeBeanFactoryPostProcessors 方法中调用（）
+		// 这三个内部类会在 refresh() 中 invokeBeanFactoryPostProcessors 方法中调用（）
 		applyInitializers(context);
 		// 发布ApplicationContext准备事件
 		listeners.contextPrepared(context);
@@ -531,17 +531,6 @@ public class SpringApplication {
 		}
 	}
 
-	/**
-	 * Template method delegating to
-	 * {@link #configurePropertySources(ConfigurableEnvironment, String[])} and
-	 * {@link #configureProfiles(ConfigurableEnvironment, String[])} in that order.
-	 * Override this method for complete control over Environment customization, or one of
-	 * the above for fine-grained control over property sources or profiles, respectively.
-	 * @param environment this application's environment
-	 * @param args arguments passed to the {@code run} method
-	 * @see #configureProfiles(ConfigurableEnvironment, String[])
-	 * @see #configurePropertySources(ConfigurableEnvironment, String[])
-	 */
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
 		if (this.addConversionService) {
 			ConversionService conversionService = ApplicationConversionService.getSharedInstance();
@@ -553,18 +542,14 @@ public class SpringApplication {
 		configureProfiles(environment, args);
 	}
 
-	/**
-	 * Add, remove or re-order any {@link PropertySource}s in this application's
-	 * environment.
-	 * @param environment this application's environment
-	 * @param args arguments passed to the {@code run} method
-	 * @see #configureEnvironment(ConfigurableEnvironment, String[])
-	 */
 	protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
+		// 获取配置存储集合
 		MutablePropertySources sources = environment.getPropertySources();
+		// 判断是否有默认配置，默认为空
 		if (this.defaultProperties != null && !this.defaultProperties.isEmpty()) {
 			sources.addLast(new MapPropertySource("defaultProperties", this.defaultProperties));
 		}
+		// 加载命令行配置
 		if (this.addCommandLineProperties && args.length > 0) {
 			String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
 			if (sources.contains(name)) {
@@ -684,7 +669,7 @@ public class SpringApplication {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void applyInitializers(ConfigurableApplicationContext context) {
-		// getInitializers 返回的是 ApplicationContextInitializer 接口的几个实现类，在 SpringApplication 构造方法中 setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class))载入的
+		// getInitializers 返回的是 ApplicationContextInitializer 接口的几个实现类，在 SpringApplication 构造方法中 setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class)) 载入的
 		for (ApplicationContextInitializer initializer : getInitializers()) {
 			Class<?> requiredType = GenericTypeResolver.resolveTypeArgument(initializer.getClass(), ApplicationContextInitializer.class);
 			Assert.isInstanceOf(requiredType, context, "Unable to call initializer.");
@@ -782,11 +767,11 @@ public class SpringApplication {
 		return ClassUtils.getDefaultClassLoader();
 	}
 
-	// springboot 的 AnnotationConfigServletWebServerApplicationContext 这个 ApplicationContex t的实现类，
+	// springboot 的 AnnotationConfigServletWebServerApplicationContext 这个 ApplicationContext 的实现类，
 	// 是继承自 GenericApplicationContext 的，而 GenericApplicationContext 实现了 BeanDefinitionRegistry
-	// getBeanDefinitionRegistry将最终返回强转过的ApplicationContext。也就是说BeanDefinition将被注册到ApplicationContext里面
+	// getBeanDefinitionRegistry 将最终返回强转过的 ApplicationContext。 也就是说 BeanDefinition 将被注册到 ApplicationContext 里面
 	private BeanDefinitionRegistry getBeanDefinitionRegistry(ApplicationContext context) {
-		// 返回当前ApplicationContext
+		// 返回当前 ApplicationContext
 		if (context instanceof BeanDefinitionRegistry) {
 			return (BeanDefinitionRegistry) context;
 		}

@@ -70,6 +70,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 	/**
 	 * {@link BeanDefinitionRegistryPostProcessor} to report warnings.
 	 */
+	// 内部类，实现了 BeanDefinitionRegistryPostProcessor 和 BeanFactoryPostProcessor 接口
 	protected static final class ConfigurationWarningsPostProcessor implements PriorityOrdered, BeanDefinitionRegistryPostProcessor {
 
 		private Check[] checks;

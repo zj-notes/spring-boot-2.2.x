@@ -185,7 +185,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 	private void onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent event) {
 		// 首先会去读spring.factories 文件, 读取 EnvironmentPostProcessor 接口实现类
 		// 获取的处理类有以下四种：
-		//  EnvironmentPostProcessor:一个@FunctionalInterface函数式接口
+		//  EnvironmentPostProcessor 一个@FunctionalInterface函数式接口
 		//  CloudFoundryVcapEnvironmentPostProcessor 为springCloud提供的扩展类
 		//  SpringApplicationJsonEnvironmentPostProcessor 支持json环境变量
 		//  SystemEnvironmentPropertySourceEnvironmentPostProcessor springBoo2提供的一个包装类，主要将`StandardServletEnvironment`包装成`SystemEnvironmentPropertySourceEnvironmentPostProcessor`对象
@@ -302,16 +302,17 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 
 		private final Log logger = ConfigFileApplicationListener.this.logger;
 
+		// 当前环境
 		private final ConfigurableEnvironment environment;
 
 		private final PropertySourcesPlaceholdersResolver placeholdersResolver;
-
+		// 类加载器，可以在项目启动时通过 SpringApplication 构造方法指定，默认采用 Launcher.AppClassLoader加载器
 		private final ResourceLoader resourceLoader;
-
+		// 资源加载工具类
 		private final List<PropertySourceLoader> propertySourceLoaders;
-
+		// LIFO队列
 		private Deque<Profile> profiles;
-
+		// 已处理过的文件
 		private List<Profile> processedProfiles;
 
 		private boolean activatedProfiles;
@@ -365,9 +366,8 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 					});
 		}
 
-		// profiles环境
 		/**
-		 * 这里注意两点
+		 * profiles环境，这里注意两点
 		 * 1）将会首先添加一个null，保证第一次加载的是application配置
 		 * 2) 其次，如果没有配置profile，那么使用default。注意，我们的application配置文件还未加载，所以这里的"没有配置"并不是指你的application配置文件中有没有配置，而是如命令行、获取main方法传入等其它方法配置
 		 * 如果未配置任何active的profile，所以这里最终将产生一个这样的数据
@@ -408,9 +408,9 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 					.collect(Collectors.toList());
 		}
 
-		// 添加当前激活的profile
 		/**
-		 * 我们看到，新的profiles首先会被添加到现有队列中。最初的profiles=[null, "default"]。
+		 * 添加当前激活的 profile
+		 * 新的profiles首先会被添加到现有队列中。最初的profiles=[null, "default"]。
 		 * 而后，我们消费了null，profiles=["default"]。现在，我们添加一个profile="test"。那么，profiles=["default", "test"]。
 		 * 再看最后一行removeUnprocessedDefaultProfiles，将会移除default。所以，最终profiles=["test"]。
 		 * @param profiles
@@ -515,13 +515,11 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 					.anyMatch((fileExtension) -> StringUtils.endsWithIgnoreCase(name, fileExtension));
 		}
 
-		private void loadForFileExtension(PropertySourceLoader loader, String prefix, String fileExtension,
-				Profile profile, DocumentFilterFactory filterFactory, DocumentConsumer consumer) {
+		private void loadForFileExtension(PropertySourceLoader loader, String prefix, String fileExtension, Profile profile, DocumentFilterFactory filterFactory, DocumentConsumer consumer) {
 			DocumentFilter defaultFilter = filterFactory.getDocumentFilter(null);
 			DocumentFilter profileFilter = filterFactory.getDocumentFilter(profile);
-			// 当有profile时，如dev，会加载如application-dev.yml文件
+			// 当有profile时，如dev，会加载如 application-dev.yml 文件
 			if (profile != null) {
-				// Try profile-specific file & profile section in profile file (gh-340)
 				String profileSpecificFile = prefix + "-" + profile + fileExtension;
 				load(loader, profileSpecificFile, profile, defaultFilter, consumer);
 				load(loader, profileSpecificFile, profile, profileFilter, consumer);
@@ -534,6 +532,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 				}
 			}
 			// 加载具体格式的文件
+			// 第四个load方法
 			load(loader, prefix + fileExtension, profile, profileFilter, consumer);
 		}
 
@@ -544,16 +543,14 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 				Resource resource = this.resourceLoader.getResource(location);
 				if (resource == null || !resource.exists()) {
 					if (this.logger.isTraceEnabled()) {
-						StringBuilder description = getDescription("Skipped missing config ", location, resource,
-								profile);
+						StringBuilder description = getDescription("Skipped missing config ", location, resource, profile);
 						this.logger.trace(description);
 					}
 					return;
 				}
 				if (!StringUtils.hasText(StringUtils.getFilenameExtension(resource.getFilename()))) {
 					if (this.logger.isTraceEnabled()) {
-						StringBuilder description = getDescription("Skipped empty config extension ", location,
-								resource, profile);
+						StringBuilder description = getDescription("Skipped empty config extension ", location, resource, profile);
 						this.logger.trace(description);
 					}
 					return;
@@ -570,7 +567,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 				}
 				List<Document> loaded = new ArrayList<>();
 				// 遍历Document集合
-				// 遍历documents的时候，会把Document中的profiles做一次添加
+				// 遍历 documents 的时候，会把 Document 中的 profiles 做一次添加
 				for (Document document : documents) {
 					if (filter.match(document)) {
 						// 添加profile
@@ -581,7 +578,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 				}
 				Collections.reverse(loaded);
 				if (!loaded.isEmpty()) {
-					// 回调处理每个document
+					// 回调处理每个 document，consumer 是在调用第二个load方法是传入的
 					loaded.forEach((document) -> consumer.accept(profile, document));
 					if (this.logger.isDebugEnabled()) {
 						StringBuilder description = getDescription("Loaded config file ", location, resource, profile);

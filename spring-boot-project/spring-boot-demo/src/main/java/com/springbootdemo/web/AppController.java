@@ -22,4 +22,10 @@ public class AppController {
 	public String add(@PathVariable("a") int a, @PathVariable("b") int b){
 		return "add result : " + calculateService.add(a, b) + ", from [" + calculateService.getServiceDesc() + "]";
 	}
+
+	@RequestMapping("/applicationContext")
+	public String applicationContextTest(){
+		return calculateService.applicationContextTest();
+	}
+
 }

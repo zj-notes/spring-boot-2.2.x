@@ -7,4 +7,6 @@ public interface CalculateService {
 	String getServiceDesc();
 
 	void setServiceDesc(String serviceDesc);
+
+    String applicationContextTest();
 }

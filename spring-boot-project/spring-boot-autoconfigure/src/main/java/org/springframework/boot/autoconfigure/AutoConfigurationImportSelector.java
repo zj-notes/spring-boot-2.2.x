@@ -88,6 +88,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 
 	private ResourceLoader resourceLoader;
 
+	// 解析 spring.factories 文件
+	// refresh()-->invokeBeanFactoryPostProcessors()-->ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry()-->
+	// ConfigurationClassParser.parse(candidates)-->AutoConfigurationImportSelector.selectImports()
 	@Override
 	public String[] selectImports(AnnotationMetadata annotationMetadata) {
 		if (!isEnabled(annotationMetadata)) {

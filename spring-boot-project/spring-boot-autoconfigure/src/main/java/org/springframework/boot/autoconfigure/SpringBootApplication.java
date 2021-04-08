@@ -50,7 +50,7 @@ import org.springframework.data.repository.Repository;
 @Documented
 @Inherited
 @SpringBootConfiguration	// 底层是Configuration注解，即支持JavaConfig的方式来进行配置(使用Configuration配置类等同于XML文件)
-@EnableAutoConfiguration	// 开启自动配置功能，这个注解可以帮助我们自动载入应用程序所需要的所有默认配置。
+@EnableAutoConfiguration	// 开启自动配置功能，这个注解可以帮助我们自动载入应用程序所需要的所有默认配置。是@AutoConfigurationPackage 和 @Import 注解组成的复合注解。
 // 扫描注解，默认是扫描当前类下的package。将@Controller/@Service/@Component/@Repository等注解加载到IOC容器中
 @ComponentScan(excludeFilters = { @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
 		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })

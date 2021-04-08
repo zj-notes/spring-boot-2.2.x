@@ -64,11 +64,7 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 
 	private String[] basePackages;
 
-	/**
-	 * Create a new {@link AnnotationConfigServletWebServerApplicationContext} that needs
-	 * to be populated through {@link #register} calls and then manually
-	 * {@linkplain #refresh refreshed}.
-	 */
+	// 实例化该类时会调用构造函数，this.reader = new AnnotatedBeanDefinitionReader(this) 会注册 ConfigurationClassPostProcessor 类，该类用来处理 @Configuration @Import 等关键注解
 	public AnnotationConfigServletWebServerApplicationContext() {
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		this.scanner = new ClassPathBeanDefinitionScanner(this);

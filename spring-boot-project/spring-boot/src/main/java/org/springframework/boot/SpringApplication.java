@@ -274,7 +274,7 @@ public class SpringApplication {
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
 
 		// 设置ApplicationContext的初始化器
-		// 这个方法调用将会从 META-INF/spring.factories 配置文件中找到所有 ApplicationContextInitialize 接口对应的实现类配置，然后通过反射机制构造出对应的实例对象
+		// 这个方法调用将会从 META-INF/spring.factories 配置文件中找到所有 ApplicationContextInitializer 接口对应的实现类配置，然后通过反射机制构造出对应的实例对象
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
 
 		// 设置Application监听器
@@ -337,6 +337,7 @@ public class SpringApplication {
 			Banner printedBanner = printBanner(environment);
 
 			// 第三步：创建容器，根据应用类型创建对应的Context容器
+			// 一般是 AnnotationConfigServletWebServerApplicationContext，实例化 AnnotationConfigServletWebServerApplicationContext 是会将 ConfigurationClassPostProcessor 注入
 			context = createApplicationContext();
 
 			// 第四步：实例化 SpringBootExceptionReporter.class，用来支持报告关于启动的错误

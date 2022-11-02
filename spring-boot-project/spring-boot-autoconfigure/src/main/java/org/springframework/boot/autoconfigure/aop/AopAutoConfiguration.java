@@ -28,20 +28,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
- * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration
- * Auto-configuration} for Spring's AOP support. Equivalent to enabling
- * {@link EnableAspectJAutoProxy @EnableAspectJAutoProxy} in your configuration.
- * <p>
- * The configuration will not be activated if {@literal spring.aop.auto=false}. The
- * {@literal proxyTargetClass} attribute will be {@literal true}, by default, but can be
- * overridden by specifying {@literal spring.aop.proxy-target-class=false}.
- *
- * @author Dave Syer
- * @author Josh Long
- * @since 1.0.0
- * @see EnableAspectJAutoProxy
+ * AOP 自动装配类
+ * AopAutoConfiguration 等同于 @EnableAspectJAutoProxy 注解
  */
 @Configuration(proxyBeanMethods = false)
+// 如果在配置文件中有”spring.aop.auto“的配置并且值为true，则自动配置 AopAutoConfiguration，如果没有改配置，默认为true，即自动加载 AopAutoConfiguration
 @ConditionalOnProperty(prefix = "spring.aop", name = "auto", havingValue = "true", matchIfMissing = true)
 public class AopAutoConfiguration {
 
@@ -51,16 +42,16 @@ public class AopAutoConfiguration {
 
 		@Configuration(proxyBeanMethods = false)
 		@EnableAspectJAutoProxy(proxyTargetClass = false)
-		@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "false",
-				matchIfMissing = false)
+		// 在配置参数 spring.aop.proxy-target-class 值被明确设置为 false 时生效
+		@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "false", matchIfMissing = false)
 		static class JdkDynamicAutoProxyConfiguration {
 
 		}
 
 		@Configuration(proxyBeanMethods = false)
 		@EnableAspectJAutoProxy(proxyTargetClass = true)
-		@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "true",
-				matchIfMissing = true)
+		// 在配置参数 spring.aop.proxy-target-class 缺失或者值被明确设置为 true 时生效
+		@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "true", matchIfMissing = true)
 		static class CglibAutoProxyConfiguration {
 
 		}
@@ -68,11 +59,10 @@ public class AopAutoConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
+	// 当项目里没有aspectjweaver的依赖的时候生效
 	@ConditionalOnMissingClass("org.aspectj.weaver.Advice")
-	@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "true",
-			matchIfMissing = true)
+	@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "true", matchIfMissing = true)
 	static class ClassProxyingConfiguration {
-
 		ClassProxyingConfiguration(BeanFactory beanFactory) {
 			if (beanFactory instanceof BeanDefinitionRegistry) {
 				BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
